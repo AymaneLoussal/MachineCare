@@ -48,11 +48,12 @@ const login = async (req, res) => {
       });
     }
 
-    const user = await authService.login(email, password);
+    const result = await authService.login(email, password);
 
     return res.status(200).json({
       message: "Login successful",
-      user,
+      token: result.token,
+      user: result.user,
     });
   } catch (error) {
     if (error.message === "Invalid email or password") {

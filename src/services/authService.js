@@ -1,4 +1,5 @@
 const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
 
 const User = require("../models/user");
 
@@ -25,6 +26,10 @@ const register = async (name, email, password) => {
 };
 
 const login = async (email, password) => {
+  if (!process.env.JWT_SECRET) {
+    throw new Error("JWT_SECRET is not configured");
+  }
+
   const normalizedEmail = email.trim().toLowerCase();
   const user = await User.findOne({ email: normalizedEmail });
 
@@ -32,13 +37,17 @@ const login = async (email, password) => {
     throw new Error("Invalid email or password");
   }
 
+  const token = jwt.sign({ id: user._id.toString() }, process.env.JWT_SECRET);
+
   return {
-    id: user._id,
-    name: user.name,
-    email: user.email,
+    token,
+    user: {
+      id: user._id,
+      name: user.name,
+      email: user.email,
+    },
   };
 };
-
 module.exports = {
   register,
   login,
