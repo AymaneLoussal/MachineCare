@@ -1,6 +1,6 @@
 const machineService = require("../services/machineService");
 
-const statuses = ["available", "maintenance", "out of service"];
+const statuses = ["disponible", "maintenance", "hors_service"];
 
 const handleError = (res, error) => {
   if (error.code === 11000) {
@@ -147,6 +147,24 @@ const deleteMachine = async (req, res) => {
       machine,
     });
   } catch (error) {
+    if (error.status === 400 && error.message === "Cannot delete machine with existing reports") {
+      return res.status(400).json({
+        message: "Cannot delete machine with existing reports",
+        reportCount: error.reportCount,
+      });
+    }
+    return handleError(res, error);
+  }
+};
+
+const getMachineReports = async (req, res) => {
+  try {
+    const machineReports = await machineService.getMachineReports(req.params.id);
+    if (!machineReports) {
+      return res.status(404).json({ message: "Machine not found" });
+    }
+    return res.status(200).json({ reports: machineReports });
+  } catch (error) {
     return handleError(res, error);
   }
 };
@@ -157,4 +175,5 @@ module.exports = {
   getMachineById,
   updateMachine,
   deleteMachine,
+  getMachineReports,
 };
