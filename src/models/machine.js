@@ -21,7 +21,7 @@ const machineSchema = new mongoose.Schema(
     status: {
       type: String,
       required: true,
-      enum: ["available", "maintenance", "out of service"],
+      enum: ["disponible", "maintenance", "hors_service"],
     },
   },
   { timestamps: true },
